@@ -1,1 +1,1 @@
-# crash-game
+# game-of-life
