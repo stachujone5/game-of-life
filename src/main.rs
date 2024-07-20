@@ -19,16 +19,26 @@ impl Board {
         }
     }
 
-    fn print(&self) {
-        for row in 0..self.size {
-            let row_slice = &self.cells[row * self.size..row * self.size + self.size];
+    fn get_cell(&self, x: usize, y: usize) -> bool {
+        let row = self.get_row(y);
 
-            let row_slice: Vec<&str> = row_slice
+        row[x]
+    }
+
+    fn get_row(&self, index: usize) -> &[bool] {
+        &self.cells[index * self.size..index * self.size + self.size]
+    }
+
+    fn print(&self) {
+        for row_index in 0..self.size {
+            let row = self.get_row(row_index);
+
+            let row: Vec<&str> = row
                 .iter()
                 .map(|v| if v.to_owned() { " # " } else { " . " })
                 .collect();
 
-            println!("{}", row_slice.join(""))
+            println!("{}", row.join(""))
         }
     }
 }
@@ -36,5 +46,9 @@ impl Board {
 fn main() {
     let board = Board::new(30);
 
-    board.print()
+    board.print();
+
+    let coord = board.get_cell(0, 0);
+
+    println!("{}", coord)
 }
