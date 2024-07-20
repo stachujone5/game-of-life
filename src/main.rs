@@ -20,88 +20,26 @@ impl Board {
         }
     }
 
-    fn get_cell(&self, x: usize, y: usize) -> Option<&bool> {
-        let row = self.get_row(y);
-
-        row.get(x)
-    }
-
     fn get_num_of_alive_neighbours(&self, x: usize, y: usize) -> usize {
-        let mut neighbours: Vec<&bool> = Vec::new();
+        let mut count = 0;
 
-        // left top diagonal
-        if x != 0 && y != 0 {
-            if let Some(state) = self.get_cell(x - 1, y - 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                if dx == 0 && dy == 0 {
+                    continue;
+                }
+
+                if let Some(nx) = x.checked_add_signed(dx) {
+                    if let Some(ny) = y.checked_add_signed(dy) {
+                        if self.get_cell(nx, ny) == Some(true) {
+                            count += 1;
+                        }
+                    }
                 }
             }
         }
 
-        // top
-        if y != 0 {
-            if let Some(state) = self.get_cell(x, y - 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // right top diagonal
-        if y != 0 && x != self.size - 1 {
-            if let Some(state) = self.get_cell(x + 1, y - 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // left
-        if x != 0 {
-            if let Some(state) = self.get_cell(x - 1, y) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // right
-        if x != self.size - 1 {
-            if let Some(state) = self.get_cell(x + 1, y) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // left bottom diagonal
-        if y != self.size - 1 && x != 0 {
-            if let Some(state) = self.get_cell(x - 1, y + 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // bottom
-        if y != self.size - 1 {
-            if let Some(state) = self.get_cell(x, y + 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        // right bottom diagonal
-        if y != self.size - 1 && x != self.size - 1 {
-            if let Some(state) = self.get_cell(x + 1, y + 1) {
-                if state.to_owned() {
-                    neighbours.push(state)
-                }
-            }
-        }
-
-        neighbours.len()
+        count
     }
 
     fn create_next_generation(&mut self) {
@@ -122,18 +60,26 @@ impl Board {
         self.cells = new_cells;
     }
 
-    fn get_row(&self, index: usize) -> &[bool] {
-        &self.cells[index * self.size..index * self.size + self.size]
+    fn get_row(&self, index: usize) -> Option<&[bool]> {
+        self.cells
+            .get(index * self.size..index * self.size + self.size)
+    }
+
+    fn get_cell(&self, x: usize, y: usize) -> Option<bool> {
+        let row = self.get_row(y);
+
+        if let Some(row) = row {
+            return row.get(x).copied();
+        }
+
+        None
     }
 
     fn print(&self) {
         for row_index in 0..self.size {
-            let row = self.get_row(row_index);
+            let row = self.get_row(row_index).expect("Invalid row index");
 
-            let row: Vec<&str> = row
-                .iter()
-                .map(|v| if v.to_owned() { " # " } else { " . " })
-                .collect();
+            let row: Vec<&str> = row.iter().map(|v| if *v { " # " } else { " . " }).collect();
 
             println!("{}", row.join(""))
         }
@@ -151,5 +97,75 @@ fn main() {
 
         let ten_millis = time::Duration::from_millis(10);
         thread::sleep(ten_millis);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_board_new() {
+        let size = 5;
+        let board = Board::new(size);
+        assert_eq!(board.size, size);
+        assert_eq!(board.cells.len(), size * size);
+    }
+
+    #[test]
+    fn test_get_cell() {
+        let size = 3;
+        let board = Board {
+            size,
+            cells: vec![true, false, true, false, true, false, true, false, true],
+        };
+
+        assert_eq!(board.get_cell(0, 0), Some(true));
+        assert_eq!(board.get_cell(1, 1), Some(true));
+        assert_eq!(board.get_cell(2, 2), Some(true));
+        assert_eq!(board.get_cell(2, 1), Some(false));
+        assert_eq!(board.get_cell(3, 3), None);
+    }
+
+    #[test]
+    fn test_get_row() {
+        let size = 3;
+        let board = Board {
+            size,
+            cells: vec![true, false, true, false, true, false, true, false, true],
+        };
+
+        assert_eq!(board.get_row(0), Some(&[true, false, true][..]));
+        assert_eq!(board.get_row(1), Some(&[false, true, false][..]));
+        assert_eq!(board.get_row(2), Some(&[true, false, true][..]));
+        assert_eq!(board.get_row(3), None);
+    }
+
+    #[test]
+    fn test_get_num_of_alive_neighbours() {
+        let size = 3;
+        let board = Board {
+            size,
+            cells: vec![true, false, true, false, true, false, true, false, true],
+        };
+
+        assert_eq!(board.get_num_of_alive_neighbours(0, 0), 1);
+        assert_eq!(board.get_num_of_alive_neighbours(1, 1), 4);
+        assert_eq!(board.get_num_of_alive_neighbours(2, 2), 1);
+    }
+
+    #[test]
+    fn test_create_next_generation() {
+        let size = 3;
+        let mut board = Board {
+            size,
+            cells: vec![false, true, false, false, true, false, false, true, false],
+        };
+
+        board.create_next_generation();
+
+        let expected_next_gen = vec![false, false, false, true, true, true, false, false, false];
+
+        assert_eq!(board.cells, expected_next_gen);
     }
 }
