@@ -1,9 +1,10 @@
 use rand::random;
-use std::{thread, time};
+use std::{thread, time, vec};
 
 struct Board {
     size: usize,
     cells: Vec<bool>,
+    next: Vec<bool>,
 }
 
 impl Board {
@@ -17,6 +18,7 @@ impl Board {
         Self {
             size,
             cells: randomized_cells,
+            next: vec![false; size * size],
         }
     }
 
@@ -43,21 +45,19 @@ impl Board {
     }
 
     fn create_next_generation(&mut self) {
-        let mut new_cells = self.cells.clone();
-
         for x in 0..self.size {
             for y in 0..self.size {
                 let n = self.get_num_of_alive_neighbours(x, y);
                 let index = y * self.size + x;
 
-                new_cells[index] = match self.cells[index] {
+                self.next[index] = match self.cells[index] {
                     true => n == 2 || n == 3,
                     false => n == 3,
                 };
             }
         }
 
-        self.cells = new_cells;
+        std::mem::swap(&mut self.cells, &mut self.next);
     }
 
     fn get_row(&self, index: usize) -> Option<&[bool]> {
@@ -118,6 +118,7 @@ mod tests {
         let board = Board {
             size,
             cells: vec![true, false, true, false, true, false, true, false, true],
+            next: vec![false; size * size],
         };
 
         assert_eq!(board.get_cell(0, 0), Some(true));
@@ -133,6 +134,7 @@ mod tests {
         let board = Board {
             size,
             cells: vec![true, false, true, false, true, false, true, false, true],
+            next: vec![false; size * size],
         };
 
         assert_eq!(board.get_row(0), Some(&[true, false, true][..]));
@@ -147,6 +149,7 @@ mod tests {
         let board = Board {
             size,
             cells: vec![true, false, true, false, true, false, true, false, true],
+            next: vec![],
         };
 
         assert_eq!(board.get_num_of_alive_neighbours(0, 0), 1);
@@ -160,6 +163,7 @@ mod tests {
         let mut board = Board {
             size,
             cells: vec![false, true, false, false, true, false, false, true, false],
+            next: vec![false; size * size],
         };
 
         board.create_next_generation();
