@@ -1,2 +1,13 @@
-Game of life in rust <br/>
-Someday it will also be in Go (or not)
+Two implementations of Conway's Game of Life in Go and Rust.
+
+## Go
+
+```bash
+go run main.go
+```
+
+## Rust
+
+```bash
+cargo run
+```

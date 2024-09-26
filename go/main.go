@@ -28,7 +28,7 @@ func New(size int) *board {
 	}
 }
 
-func (b *board) get_num_of_alive_neighbours(x, y int) int {
+func (b *board) getNumOfAliveNeighbours(x, y int) int {
 	count := 0
 
 	for dx := -1; dx <= 1; dx++ {
@@ -37,7 +37,7 @@ func (b *board) get_num_of_alive_neighbours(x, y int) int {
 				continue
 			}
 
-			cell, err := b.get_cell(x+dx, y+dy)
+			cell, err := b.getCell(x+dx, y+dy)
 
 			if err == nil && cell == true {
 				count += 1
@@ -50,7 +50,7 @@ func (b *board) get_num_of_alive_neighbours(x, y int) int {
 
 }
 
-func (b *board) get_row(index int) ([]bool, error) {
+func (b *board) getRow(index int) ([]bool, error) {
 	if index < 0 || index >= len(b.cells)/b.size {
 		return nil, errors.New("index out of bounds")
 	}
@@ -62,8 +62,8 @@ func (b *board) get_row(index int) ([]bool, error) {
 	return b.cells[start:end], nil
 }
 
-func (b *board) get_cell(x, y int) (bool, error) {
-	row, err := b.get_row(y)
+func (b *board) getCell(x, y int) (bool, error) {
+	row, err := b.getRow(y)
 	if err != nil {
 		return false, err
 	}
@@ -77,7 +77,7 @@ func (b *board) get_cell(x, y int) (bool, error) {
 
 func (b *board) print() {
 	for row_index := 0; row_index < b.size; row_index++ {
-		row, err := b.get_row(row_index)
+		row, err := b.getRow(row_index)
 
 		if err != nil {
 			panic(err)
@@ -97,10 +97,10 @@ func (b *board) print() {
 	}
 }
 
-func (b *board) create_next_generation() {
+func (b *board) createNextGeneration() {
 	for x := 0; x < b.size; x++ {
 		for y := 0; y < b.size; y++ {
-			n := b.get_num_of_alive_neighbours(x, y)
+			n := b.getNumOfAliveNeighbours(x, y)
 			index := y*b.size + x
 
 			var next bool
@@ -126,7 +126,7 @@ func main() {
 
 	for {
 		board.print()
-		board.create_next_generation()
+		board.createNextGeneration()
 
 		ten_millis := time.Duration(10) * time.Millisecond
 		time.Sleep(ten_millis)
