@@ -13,17 +13,17 @@ type board struct {
 	next  []bool
 }
 
-func new(size int) *board {
-	randomized_cells := make([]bool, size*size)
+func newBoard(size int) *board {
+	randomizedCells := make([]bool, size*size)
 	next := make([]bool, size*size)
 
 	for i := 0; i < size*size; i++ {
-		randomized_cells[i] = rand.Intn(2) == 1
+		randomizedCells[i] = rand.Intn(2) == 1
 	}
 
 	return &board{
 		size:  size,
-		cells: randomized_cells,
+		cells: randomizedCells,
 		next:  next,
 	}
 }
@@ -75,26 +75,28 @@ func (b *board) getCell(x, y int) (bool, error) {
 	return row[x], nil
 }
 
-func (b *board) print() {
-	for row_index := 0; row_index < b.size; row_index++ {
-		row, err := b.getRow(row_index)
+func (b *board) print() error {
+	for rowIndex := 0; rowIndex < b.size; rowIndex++ {
+		row, err := b.getRow(rowIndex)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
-		row_str := ""
+		rowStr := ""
 
 		for _, cell := range row {
 			if cell {
-				row_str += " # "
+				rowStr += " # "
 			} else {
-				row_str += " . "
+				rowStr += " . "
 			}
 		}
 
-		fmt.Println(row_str)
+		fmt.Println(rowStr)
 	}
+
+	return nil
 }
 
 func (b *board) createNextGeneration() {
@@ -122,13 +124,18 @@ func (b *board) createNextGeneration() {
 }
 
 func main() {
-	board := new(45)
+	board := newBoard(45)
 
 	for {
-		board.print()
+		err := board.print()
+
+		if err != nil {
+			panic(err)
+		}
+
 		board.createNextGeneration()
 
-		ten_millis := time.Duration(10) * time.Millisecond
-		time.Sleep(ten_millis)
+		tenMillis := time.Duration(10) * time.Millisecond
+		time.Sleep(tenMillis)
 	}
 }
