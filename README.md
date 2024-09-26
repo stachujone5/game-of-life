@@ -1,4 +1,4 @@
-Two implementations of Conway's Game of Life in Go and Rust.
+Two implementations of Conway's Game of Life, one in Go and the other in Rust.
 
 ## Go
 
