@@ -13,7 +13,7 @@ type board struct {
 	next  []bool
 }
 
-func New(size int) *board {
+func new(size int) *board {
 	randomized_cells := make([]bool, size*size)
 	next := make([]bool, size*size)
 
@@ -122,7 +122,7 @@ func (b *board) createNextGeneration() {
 }
 
 func main() {
-	board := New(45)
+	board := new(45)
 
 	for {
 		board.print()

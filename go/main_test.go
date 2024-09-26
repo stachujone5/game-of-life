@@ -7,7 +7,7 @@ import (
 
 func TestBoardNew(t *testing.T) {
 	size := 5
-	board := New(size)
+	board := new(size)
 
 	if board.size != size {
 		t.Fatalf("New(%d).size = %d; want %d", size, board.size, size)
