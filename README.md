@@ -1,4 +1,4 @@
-Two implementations of Conway's Game of Life, one in Go and the other in Rust.
+Conway's Game of Life written in C, Go, and Rust.
 
 ## Go
 
@@ -10,4 +10,11 @@ go run main.go
 
 ```bash
 cargo run
+```
+
+## C
+
+```bash
+gcc -o main main.c
+./main
 ```
